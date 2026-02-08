@@ -1,5 +1,5 @@
 <?php
-// Simple API endpoint to verify backend health
+// Simple API endpoint
 header('Content-Type: application/json');
 echo json_encode([
     "status" => "online",
