@@ -1,5 +1,5 @@
 <?php
-// Server-side logic for initial time sync and greeting
+// Server-side logic for initial time sync
 date_default_timezone_set('UTC');
 $serverTime = time();
 $hour = date('H');
@@ -218,12 +218,12 @@ if ($hour >= 12 && $hour < 18) {
     // Game Loop (Hydration Decay)
     setInterval(() => {
         if (state.hydration > 0) {
-            state.hydration -= 1; // Decays 1% per tick
+            state.hydration -= 1; 
             if (state.hydration < 0) state.hydration = 0;
             updateUI();
         }
         saveGame();
-    }, 1000); // Every second
+    }, 1000); 
 
     function waterPlant() {
         if (state.hydration >= 100) {
@@ -258,7 +258,7 @@ if ($hour >= 12 && $hour < 18) {
     function singToPlant() {
         addXp(5);
         showToast("You hum a melody... The plant likes it.");
-        state.hydration -= 10; // Singing takes breath/moisture
+        state.hydration -= 10;
         updateUI();
     }
 
@@ -285,36 +285,28 @@ if ($hour >= 12 && $hour < 18) {
         state.xp = 0;
         state.maxXp = Math.floor(state.maxXp * 1.5);
         state.level++;
-        state.drops += 10; // Bonus drops
+        state.drops += 10;
         showToast("LEVEL UP! The plant evolves.");
-        
-        // Reset fertilizer on level up
         state.fertilizerActive = false; 
     }
 
     function updateUI() {
-        // Visual Stage
         let stageIndex = Math.min(state.level - 1, stages.length - 1);
         plantEl.innerText = stages[stageIndex];
         
-        // Bars
         xpBar.style.width = (state.xp / state.maxXp * 100) + "%";
         waterBar.style.width = state.hydration + "%";
         
-        // Color of water bar based on hydration
         if (state.hydration < 30) waterBar.style.background = "#f85149";
         else waterBar.style.background = "#58a6ff";
 
-        // Text
         levelDisplay.innerText = state.level;
         currencyDisplay.innerText = state.drops;
         
-        // Random status text occasionally
         if (Math.random() > 0.9) {
             statusText.innerText = statusMessages[Math.floor(Math.random() * statusMessages.length)];
         }
         
-        // Button state
         btnWater.disabled = state.hydration >= 100;
         if(state.hydration >= 100) btnWater.innerText = "Fully Hydrated";
         else btnWater.innerText = "💧 Water Plant";
@@ -336,15 +328,11 @@ if ($hour >= 12 && $hour < 18) {
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                // Simple merge to keep game valid if we update code
                 state = { ...state, ...parsed };
                 
-                // Calculate time passed since last login (Offline Progress)
+                // Offline progress
                 const now = Math.floor(Date.now() / 1000);
-                const diff = now - state.lastSave; // seconds
-                
-                // Decay hydration based on offline time
-                // Assume 1% decay per minute offline instead of per second (slower offline decay)
+                const diff = now - state.lastSave; 
                 const decay = Math.floor(diff / 60); 
                 state.hydration -= decay;
                 if(state.hydration < 0) state.hydration = 0;
@@ -352,15 +340,13 @@ if ($hour >= 12 && $hour < 18) {
                 if (decay > 5) {
                     showToast(`You were gone for ${Math.floor(diff/60)} mins. The plant got thirsty.`);
                 }
-                
-                state.lastSave = now; // Update timestamp
+                state.lastSave = now;
             } catch (e) {
                 console.error("Save corrupted");
             }
         }
     }
     
-    // Auto-save on close
     window.onbeforeunload = function() {
         state.lastSave = Math.floor(Date.now() / 1000);
         saveGame();
